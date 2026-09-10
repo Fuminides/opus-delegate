@@ -68,10 +68,23 @@ if [[ -n "$TIMEOUT_SECONDS" ]]; then
   command -v timeout >/dev/null || { echo "GNU timeout is required for --timeout" >&2; exit 127; }
 fi
 
+new_uuid() {
+  if [[ -r /proc/sys/kernel/random/uuid ]]; then
+    cat /proc/sys/kernel/random/uuid
+  elif command -v uuidgen >/dev/null; then
+    uuidgen | tr '[:upper:]' '[:lower:]'
+  elif command -v python3 >/dev/null; then
+    python3 -c 'import uuid; print(uuid.uuid4())'
+  else
+    echo "No UUID source: need /proc, uuidgen, or python3" >&2
+    return 127
+  fi
+}
+
 if [[ -n "$RESUME_SESSION" ]]; then
   SESSION_ID="$RESUME_SESSION"
 else
-  SESSION_ID="$(cat /proc/sys/kernel/random/uuid)"
+  SESSION_ID="$(new_uuid)"
 fi
 if [[ -z "$SESSION_FILE" ]]; then
   SESSION_DIR="${XDG_STATE_HOME:-${HOME:?}/.local/state}/opus-delegate"

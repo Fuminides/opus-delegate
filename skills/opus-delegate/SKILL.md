@@ -1,21 +1,21 @@
 ---
 name: opus-delegate
-description: Delegate substantial implementation, debugging, or independent review to Claude Opus when it can reduce Astra's token use while preserving solution quality. Do not use for trivial tasks or work adequately handled by a cheaper Codex subagent.
+description: Delegate substantial implementation, debugging, or independent review to Claude Opus when it can reduce the calling agent's token use while preserving solution quality. Do not use for trivial tasks or work adequately handled by a cheaper subagent.
 ---
 
 # Opus delegation
 
-The aim is to save Astra tokens while retaining Astra's strengths in reasoning,
-architecture, and judgment. Use Opus for substantial, bounded implementation or
-independent analysis; keep Astra responsible for task decomposition, integration,
-critical review, and final validation.
+The aim is to save the calling agent's tokens while retaining its strengths in
+reasoning, architecture, and judgment. Use Opus for substantial, bounded
+implementation or independent analysis; keep the caller responsible for task
+decomposition, integration, critical review, and final validation.
 
 Judge savings across the whole task, including briefing, duplicated context,
-review, and rework. Delegate when those costs are likely lower than Astra doing
-the work directly. Give focused context and request concise evidence instead of
-raw logs; do not duplicate the delegated implementation in Astra. Token savings
-must not reduce correctness, necessary verification, or completion of the user's
-request.
+review, and rework. Delegate when those costs are likely lower than the caller
+doing the work directly. Give focused context and request concise evidence
+instead of raw logs; do not duplicate the delegated implementation in the
+calling session. Token savings must not reduce correctness, necessary
+verification, or completion of the user's request.
 
 Invoke:
 
@@ -25,10 +25,12 @@ for implementation, and
 
     <skill-dir>/scripts/opus_consultant.sh
 
-for consulting/debugging. Resolve `<skill-dir>` to the skill's absolute
-directory, and run the script with the target repository as its working
-directory. Provide the complete task through stdin. This keeps delegation
-portable when Astra is working in another repository.
+for consulting/debugging. `<skill-dir>` is this skill's absolute directory:
+when installed as a plugin it is `${CLAUDE_PLUGIN_ROOT}/skills/opus-delegate`,
+and when installed as a personal skill it is `~/.claude/skills/opus-delegate`.
+Pass the target repository with `--cwd` rather than relying on the current
+shell directory, and provide the complete task through stdin. This keeps
+delegation portable when the caller is working in another repository.
 
 Use a compact brief containing:
 
@@ -38,15 +40,15 @@ Use a compact brief containing:
 - constraints and acceptance criteria; and
 - verification commands and the evidence to report.
 
-Do not make Opus rediscover context that Astra already has, but include enough
+Do not make Opus rediscover context the caller already has, but include enough
 context for it to work independently.
 
 ## When to use Opus
 
 Prefer Opus for substantial implementation it can carry through reliably, or
 when independent reasoning would materially improve confidence. Use a cheaper
-Codex subagent for routine bounded work, and keep small tasks local when
-delegation overhead would exceed the benefit.
+subagent for routine bounded work, and keep small tasks local when delegation
+overhead would exceed the benefit.
 
 Other situations where you might find Opus useful:
 - difficult debugging where the root cause is unclear;
@@ -60,7 +62,7 @@ Do not use Opus for:
 - grep/search operations;
 - routine tests;
 - straightforward mechanical changes;
-- tasks already adequately handled by a cheaper Codex subagent.
+- tasks already adequately handled by a cheaper subagent.
 
 ## Delegation protocol
 
@@ -104,8 +106,8 @@ verification have been satisfied.
 
 Before delegation, inspect the target working tree and preserve unrelated user
 changes. In a shared checkout, give Opus explicit file ownership and do not
-have Astra or another agent edit those files concurrently. Use an isolated Git
-worktree for concurrent, risky, or broad changes when practical; integrate the
+have the caller or another agent edit those files concurrently. Use an isolated
+Git worktree for concurrent, risky, or broad changes when practical; integrate the
 result only after reviewing its diff and verifying it in the target repository.
 A new worktree does not include uncommitted changes: explicitly transfer any
 changes needed for the task without overwriting unrelated work.
@@ -114,10 +116,10 @@ changes needed for the task without overwriting unrelated work.
 
 Both wrappers read the prompt from stdin and default to `xhigh` effort and JSON
 output. Pass the target repository explicitly with `--cwd`; the wrapper runs
-Opus from that directory. Resolve `<skill-dir>` to the skill's absolute path.
-For example:
+Opus from that directory. For example:
 
-    printf '%s\n' "$TASK" | <skill-dir>/scripts/opus_worker.sh medium \
+    SKILL_DIR="$CLAUDE_PLUGIN_ROOT/skills/opus-delegate"
+    printf '%s\n' "$TASK" | "$SKILL_DIR/scripts/opus_worker.sh" medium \
       --cwd /path/to/repository --timeout 300 \
       --allow-tool 'Bash(npm test *)'
 
@@ -130,13 +132,16 @@ interrupted or partial delegation. Keep the target repository in `--cwd`, and
 keep the skill path absolute even when the current shell directory differs.
 
 `--allow-tool` adds task-specific preapprovals; it does not define the entire
-available tool set or bypass permission rules. Both modes deny requests that
-would require a permission prompt. Workers must report denied verification
-commands as blockers, never as passing checks. Consultant mode uses plan
-permissions; use worker mode when the task requires edits.
+available tool set or bypass permission rules. Worker mode preapproves only
+`Read`, `Edit`, `Write`, and read-only `git diff`/`status`/`log`, so pass the
+verification commands the task needs with `--allow-tool`. Both modes deny
+requests that would require a permission prompt. Workers must report denied
+verification commands as blockers, never as passing checks. Consultant mode
+uses plan permissions; use worker mode when the task requires edits.
 
-The wrappers require Bash, Claude Code, and Linux (`/proc` for UUID generation;
-GNU `timeout` when `--timeout` is used). No timeout is imposed unless specified.
+The wrappers require Bash and Claude Code, plus a UUID source (`/proc`,
+`uuidgen`, or `python3`) and GNU `timeout` when `--timeout` is used. No timeout
+is imposed unless specified.
 They announce a session ID and log path on stderr before launching Claude.
 Each run gets a separate log under `${XDG_STATE_HOME:-$HOME/.local/state}/opus-delegate`,
 containing the session ID, emitted stdout/stderr, and exit status. Use

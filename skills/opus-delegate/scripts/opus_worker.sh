@@ -5,8 +5,7 @@ DEFAULT_ALLOWED_TOOLS=(
     "Read" "Edit" "Write" \
     "Bash(git diff *)" \
     "Bash(git status *)" \
-    "Bash(git log *)" \
-    "Bash(pytest *)"
+    "Bash(git log *)"
 )
 run_worker() {
   local -a command=(claude -p --model opus --permission-mode acceptEdits --permission-prompts none --effort "$EFFORT" --output-format "$OUTPUT_FORMAT" --allowedTools)

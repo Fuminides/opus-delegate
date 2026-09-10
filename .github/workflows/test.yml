@@ -1,0 +1,36 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject CRLF line endings
+        run: |
+          if grep -rlI $'\r' --exclude-dir=.git .; then
+            echo "Files above contain CRLF; the wrappers must stay LF." >&2
+            exit 1
+          fi
+
+      - name: Validate plugin manifests
+        run: |
+          python3 -c "import json; json.load(open('.claude-plugin/plugin.json'))"
+          python3 -c "import json; json.load(open('.claude-plugin/marketplace.json'))"
+
+      - name: Shell syntax check
+        run: bash -n install.sh skills/opus-delegate/scripts/*.sh tests/test_scripts.sh
+
+      - name: shellcheck
+        run: |
+          shellcheck -x -P SCRIPTDIR install.sh \
+            skills/opus-delegate/scripts/opus_worker.sh \
+            skills/opus-delegate/scripts/opus_consultant.sh \
+            tests/test_scripts.sh
+
+      - name: Run script tests
+        run: bash tests/test_scripts.sh

@@ -1,0 +1,6 @@
+# The wrappers are executed as shell scripts; a CRLF checkout breaks the
+# shebang and every `set` line. Force LF regardless of platform or editor.
+* text=auto eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.json text eol=lf

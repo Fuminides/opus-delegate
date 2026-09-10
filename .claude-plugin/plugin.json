@@ -1,0 +1,20 @@
+{
+  "name": "opus-delegate",
+  "version": "0.1.0",
+  "description": "Delegate substantial implementation, debugging, or independent review to Claude Opus via reliable headless wrappers, so the calling agent spends fewer tokens without giving up solution quality.",
+  "author": {
+    "name": "Fuminides",
+    "url": "https://github.com/Fuminides"
+  },
+  "homepage": "https://github.com/Fuminides/opus-delegate",
+  "repository": "https://github.com/Fuminides/opus-delegate",
+  "license": "MIT",
+  "keywords": [
+    "delegation",
+    "opus",
+    "subagent",
+    "code-review",
+    "debugging",
+    "token-efficiency"
+  ]
+}
