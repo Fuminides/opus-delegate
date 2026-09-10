@@ -17,6 +17,8 @@ when that trade is worth making and, just as importantly, when it isn't.
 | `skills/opus-delegate/scripts/opus_worker.sh` | Worker mode — Opus edits files. `acceptEdits` permissions. |
 | `skills/opus-delegate/scripts/opus_consultant.sh` | Consultant mode — Opus reasons and reports. `plan` permissions, no edits. |
 | `skills/opus-delegate/scripts/opus_common.sh` | Shared argument parsing, session IDs, logging. |
+| `commands/opus-guidelines.md` | `/opus-delegate:opus-guidelines` — profiles a repo and writes its `OPUS_DELEGATION.md`. |
+| `templates/OPUS_DELEGATION.md` | The skeleton that command fills in, if you'd rather write it by hand. |
 | `tests/test_scripts.sh` | Wrapper tests against a stub `claude` binary. No API calls, no cost. |
 
 ## Install
@@ -111,6 +113,40 @@ so they're owner-readable only.
 
 The log is not a standalone JSON document — it interleaves Claude's output with
 wrapper metadata lines (`# session_id=`, `# exit_status=`).
+
+## Making the agent reach for it
+
+Installing the skill makes delegation *available*. It doesn't make the agent
+*look* for it, and it can't tell the worker how to verify anything in your
+project. That's what a per-repo profile is for:
+
+```
+/opus-delegate:opus-guidelines
+```
+
+The command reads your repo — `package.json`, `pyproject.toml`, `Makefile`,
+`.github/workflows/`, the directory layout — and writes an `OPUS_DELEGATION.md`
+recording what only this repo knows: the test and lint commands as ready-to-paste
+`--allow-tool` strings, which directories are worth delegating, which are
+off-limits, and any constraints a fresh Opus session would otherwise violate.
+Pass a different filename as an argument if you prefer one.
+
+**A markdown file in your repo is not loaded into context.** Only `CLAUDE.md` is
+auto-discovered, along with the files it `@`-imports. So the profile is inert
+until `CLAUDE.md` contains:
+
+```markdown
+@OPUS_DELEGATION.md
+```
+
+The command creates `CLAUDE.md` with that line if you don't have one. If you do,
+it shows you the addition and asks first, rather than editing a file you may
+have curated deliberately.
+
+Keep the profile short — it is imported into `CLAUDE.md`, so you pay for it in
+every session in that repo. Repo-specific facts only; the general delegation
+protocol already lives in the skill. `templates/OPUS_DELEGATION.md` is the
+starting point if you'd rather fill it in yourself.
 
 ## Handling failure
 
