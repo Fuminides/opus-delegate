@@ -17,10 +17,18 @@ jobs:
             exit 1
           fi
 
-      - name: Validate plugin manifests
+      - name: Validate plugin manifest and skill frontmatter
         run: |
-          python3 -c "import json; json.load(open('.claude-plugin/plugin.json'))"
-          python3 -c "import json; json.load(open('.claude-plugin/marketplace.json'))"
+          python3 -c "import json; json.load(open('.codex-plugin/plugin.json'))"
+          python3 - <<'PY'
+          import json, re, sys
+          m = json.load(open('.codex-plugin/plugin.json'))
+          assert re.fullmatch(r'\d+\.\d+\.\d+', m['version']), 'version must be strict semver'
+          assert open('VERSION').read().strip() == m['version'], 'VERSION disagrees with plugin.json'
+          fm = open('skills/opus-delegate/SKILL.md').read().split('---')[1]
+          for field in ('name:', 'description:'):
+              assert field in fm, f'SKILL.md frontmatter missing {field}'
+          PY
 
       - name: Shell syntax check
         run: bash -n install.sh skills/opus-delegate/scripts/*.sh tests/test_scripts.sh

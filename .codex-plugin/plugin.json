@@ -1,0 +1,23 @@
+{
+  "name": "opus-delegate",
+  "version": "0.1.0",
+  "description": "Delegate substantial implementation, debugging, or independent review from Codex to Claude Opus through reliable headless wrappers, so the calling model spends fewer tokens without giving up solution quality.",
+  "author": {
+    "name": "Javier Fumanal Idocin",
+    "url": "https://github.com/Fuminides"
+  },
+  "homepage": "https://github.com/Fuminides/opus-delegate",
+  "repository": "https://github.com/Fuminides/opus-delegate",
+  "license": "MIT",
+  "keywords": ["delegation", "opus", "code-review", "debugging", "token-efficiency"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Opus Delegate",
+    "shortDescription": "Hand bounded work to Claude Opus from Codex.",
+    "longDescription": "Worker and consultant wrappers that run Claude Opus headlessly on a bounded task, plus the policy for deciding when delegating is actually cheaper than doing the work locally.",
+    "developerName": "Javier Fumanal Idocin",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Use $opus-delegate to hand this refactor to Opus and report back with verification evidence."
+  }
+}

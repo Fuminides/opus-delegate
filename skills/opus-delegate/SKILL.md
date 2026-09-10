@@ -1,6 +1,9 @@
 ---
 name: opus-delegate
-description: Delegate substantial implementation, debugging, or independent review to Claude Opus when it can reduce the calling agent's token use while preserving solution quality. Do not use for trivial tasks or work adequately handled by a cheaper subagent.
+description: Delegate substantial implementation, debugging, or independent review from Codex to Claude Opus when it can reduce the calling model's token use while preserving solution quality. Use when handing off bounded implementation, hard debugging, or adversarial review of a diff, and for the `opus-guidelines` alias, which profiles the current repository for delegation and writes that profile into AGENTS.md. Do not use for trivial tasks or work a cheaper local subagent handles.
+metadata:
+  version: "0.1.0"
+  short-description: Hand bounded work to Claude Opus
 ---
 
 # Opus delegation
@@ -25,12 +28,12 @@ for implementation, and
 
     <skill-dir>/scripts/opus_consultant.sh
 
-for consulting/debugging. `<skill-dir>` is this skill's absolute directory:
-when installed as a plugin it is `${CLAUDE_PLUGIN_ROOT}/skills/opus-delegate`,
-and when installed as a personal skill it is `~/.claude/skills/opus-delegate`.
-Pass the target repository with `--cwd` rather than relying on the current
-shell directory, and provide the complete task through stdin. This keeps
-delegation portable when the caller is working in another repository.
+for consulting/debugging. `<skill-dir>` is this skill's own directory —
+`${CODEX_HOME:-~/.codex}/skills/opus-delegate` for a normal install, or the
+plugin's `skills/opus-delegate` when installed as a plugin. Pass the target
+repository with `--cwd` rather than relying on the current shell directory,
+and provide the complete task through stdin. This keeps delegation portable
+when the caller is working in another repository.
 
 Use a compact brief containing:
 
@@ -42,6 +45,21 @@ Use a compact brief containing:
 
 Do not make Opus rediscover context the caller already has, but include enough
 context for it to work independently.
+
+## Aliases
+
+Codex registers no slash commands, so these are plain phrases the user types.
+Route them here:
+
+- **`opus-guidelines`** (also `/opus-guidelines`, "set up this repo for
+  delegation") — follow `references/repo-profile-recipe.md`. It profiles the
+  current repository and writes a delegation section into `AGENTS.md`, so
+  later sessions know this repo's verification commands and which paths are
+  off-limits.
+
+Codex loads `AGENTS.md` automatically but does **not** resolve `@file`
+imports. Repo-specific delegation notes must be inlined into `AGENTS.md`;
+pointing at a separate file leaves them unread.
 
 ## When to use Opus
 
@@ -118,7 +136,7 @@ Both wrappers read the prompt from stdin and default to `xhigh` effort and JSON
 output. Pass the target repository explicitly with `--cwd`; the wrapper runs
 Opus from that directory. For example:
 
-    SKILL_DIR="$CLAUDE_PLUGIN_ROOT/skills/opus-delegate"
+    SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/opus-delegate"
     printf '%s\n' "$TASK" | "$SKILL_DIR/scripts/opus_worker.sh" medium \
       --cwd /path/to/repository --timeout 300 \
       --allow-tool 'Bash(npm test *)'

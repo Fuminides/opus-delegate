@@ -1,0 +1,8 @@
+interface:
+  display_name: "Opus Delegate"
+  short_description: "Hand bounded work to Claude Opus, keep judgement local"
+  brand_color: "#C15F3C"
+  default_prompt: "Use $opus-delegate to hand this bounded refactor to Opus and report back with verification evidence."
+
+policy:
+  allow_implicit_invocation: true

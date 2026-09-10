@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-# Install opus-delegate as a personal Claude Code skill.
-# For the plugin route instead, see README.md.
+# Install opus-delegate as a Codex skill.
+# For the plugin and GitHub-installer routes instead, see README.md.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$ROOT/skills/opus-delegate"
-DEST="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}/opus-delegate"
+DEST="${CODEX_HOME:-$HOME/.codex}/skills/opus-delegate"
 MODE="symlink"
 
 usage() {
   echo "Usage: $0 [--symlink|--copy] [--force]" >&2
-  echo "  --symlink  link ~/.claude/skills/opus-delegate to this checkout (default)" >&2
+  echo "  --symlink  link \$CODEX_HOME/skills/opus-delegate to this checkout (default)" >&2
   echo "  --copy     copy the skill instead, leaving no dependency on this checkout" >&2
   echo "  --force    replace an existing installation" >&2
 }
@@ -43,5 +43,6 @@ else
 fi
 chmod +x "$DEST"/scripts/*.sh
 
-command -v claude >/dev/null || echo "Warning: 'claude' is not on PATH; the wrappers will fail until it is." >&2
+command -v claude >/dev/null || echo "Warning: 'claude' is not on PATH; the wrappers delegate to it and will fail until it is installed." >&2
 echo "Installed opus-delegate ($MODE) at $DEST"
+echo "Restart Codex to pick up the skill."
