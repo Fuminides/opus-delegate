@@ -37,20 +37,11 @@ Either way it lands in `$CODEX_HOME/skills/opus-delegate` (default `~/.codex`).
 
 ## Usage
 
-Task on **stdin**, target repo via `--cwd`:
-
-```bash
-printf '%s\n' "$TASK" | ~/.codex/skills/opus-delegate/scripts/opus_worker.sh medium \
-  --cwd /path/to/repo --timeout 300 --allow-tool 'Bash(pytest *)'
-```
-
-Effort is a bare word (`low`|`medium`|`high`|`xhigh`|`max`, default `xhigh`).
-Other flags: `--resume SESSION_ID`, `--output-format text|json|stream-json`,
-`--session-file FILE`, repeatable `--allow-tool`.
-
-In Codex you normally just ask — the skill fires on its own. Type
+Type
 `opus-guidelines` to profile the current repo and write its delegation notes
 into `AGENTS.md`.
+
+Then, the skill fires on its own. 
 
 ## Check it works
 
