@@ -37,6 +37,21 @@ Either way it lands in `$CODEX_HOME/skills/opus-delegate` (default `~/.codex`).
 **Restart Codex afterwards.** Requires Bash, the `claude` CLI, a UUID source
 (`/proc`, `uuidgen`, or `python3`), and GNU `timeout` only if you use `--timeout`.
 
+### Let Codex reach the network
+
+The wrappers call the Anthropic API, but Codex's `workspace-write` sandbox
+blocks network access by default, so delegation fails from inside Codex until
+you allow it in `~/.codex/config.toml`:
+
+```toml
+[sandbox_workspace_write]
+network_access = true
+```
+
+Logs fall back to `$TMPDIR` when the sandbox makes `~/.local/state` read-only.
+To keep them in one place instead, also add
+`writable_roots = ["~/.local/state"]` to that section.
+
 ## Usage
 
 Type

@@ -63,4 +63,16 @@ printf '%s' '-prompt' | "$SKILL_DIR/scripts/opus_consultant.sh" --output-format 
 grep -q -- '--verbose -- -prompt' "$LOG"
 (cd "$TMP" && printf x | "$SKILL_DIR/scripts/opus_worker.sh" --cwd "$TMP/work" --session-file relative.log >/dev/null)
 [[ -f "$TMP/relative.log" && ! -f "$TMP/work/relative.log" ]]
+# A read-only state directory (as in an agent sandbox) must not fail the run:
+# the log falls back to TMPDIR instead.
+ro_state="$TMP/rostate"
+mkdir -p "$ro_state/opus-delegate"
+chmod -w "$ro_state/opus-delegate"
+fallback_tmp="$TMP/fallback"
+mkdir -p "$fallback_tmp"
+out="$(printf x | XDG_STATE_HOME="$ro_state" TMPDIR="$fallback_tmp" "$SKILL_DIR/scripts/opus_worker.sh" --cwd "$TMP/work" 2>&1)"
+grep -q 'sid-123' <<<"$out"
+[[ -n "$(find "$fallback_tmp/opus-delegate" -name '*.log' -print -quit)" ]]
+chmod +w "$ro_state/opus-delegate"
+
 echo 'script tests passed' 

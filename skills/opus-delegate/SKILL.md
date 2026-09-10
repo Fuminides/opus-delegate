@@ -167,6 +167,13 @@ uses plan permissions; use worker mode when the task requires edits.
 The wrappers require Bash and Claude Code, plus a UUID source (`/proc`,
 `uuidgen`, or `python3`) and GNU `timeout` when `--timeout` is used. No timeout
 is imposed unless specified.
+
+If a delegation fails with a connection or API error, the caller's sandbox is
+probably blocking network access rather than the task being at fault: Codex's
+`workspace-write` sandbox denies network unless `sandbox_workspace_write.network_access`
+is `true` in `~/.codex/config.toml`. Report that as a blocker and say what the
+user must change; do not retry it repeatedly or fall back to doing the work
+locally without saying so.
 They announce a session ID and log path on stderr before launching Claude.
 Each run gets a separate log under `${XDG_STATE_HOME:-$HOME/.local/state}/opus-delegate`,
 containing the session ID, emitted stdout/stderr, and exit status. Use

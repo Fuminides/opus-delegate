@@ -88,8 +88,14 @@ else
 fi
 if [[ -z "$SESSION_FILE" ]]; then
   SESSION_DIR="${XDG_STATE_HOME:-${HOME:?}/.local/state}/opus-delegate"
-  mkdir -p "$SESSION_DIR"
-  SESSION_FILE="$(mktemp "$SESSION_DIR/$SESSION_ID.XXXXXX.log")"
+  # An agent sandbox may make the state directory read-only (Codex
+  # workspace-write does). Fall back to the temp directory, which sandboxes
+  # normally leave writable, rather than failing the whole run over a log.
+  if ! SESSION_FILE="$( { mkdir -p "$SESSION_DIR" && mktemp "$SESSION_DIR/$SESSION_ID.XXXXXX.log"; } 2>/dev/null )"; then
+    SESSION_DIR="${TMPDIR:-/tmp}/opus-delegate"
+    mkdir -p "$SESSION_DIR"
+    SESSION_FILE="$(mktemp "$SESSION_DIR/$SESSION_ID.XXXXXX.log")"
+  fi
 else
   mkdir -p "$(dirname "$SESSION_FILE")"
   # Resolve before changing to the target repository.
