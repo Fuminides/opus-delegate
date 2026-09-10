@@ -75,6 +75,17 @@ printf 'Reply with exactly: DELEGATION OK\n' | \
   ~/.codex/skills/opus-delegate/scripts/opus_consultant.sh low --cwd .
 ```
 
+### Authentication and subscriptions
+
+opus-delegate does not access, store, proxy, or modify Claude credentials.
+
+Delegated tasks are executed through Anthropic's official locally installed
+`claude` CLI. Authentication and usage limits remain entirely managed by
+Claude Code and the user's Anthropic account.
+
+Likewise, the skill does not modify Codex authentication or attempt to
+circumvent Codex usage limits.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
