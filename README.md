@@ -1,5 +1,7 @@
 # opus-delegate
 
+**Codex orchestrates. Opus implements. Use both subscriptions from one Codex session.**
+
 A **Codex** skill for handing bounded work to **Claude Opus** and getting it back
 with evidence. Codex keeps decomposition, integration and review; Opus does the
 expensive middle chunk. Requires the `claude` CLI — that is the delegation target.
