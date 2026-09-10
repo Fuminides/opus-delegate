@@ -52,21 +52,6 @@ In Codex you normally just ask — the skill fires on its own. Type
 `opus-guidelines` to profile the current repo and write its delegation notes
 into `AGENTS.md`.
 
-## Tips
-
-- **Always pass your test command** with `--allow-tool`. Worker mode preapproves
-  only `Read`, `Edit`, `Write` and read-only git. Anything else is *denied, not
-  passing* — a worker must report that as a blocker, so don't take "complete" on faith.
-- **Use consultant mode for opinions**, worker mode only when files must change.
-- **Notes go inline in `AGENTS.md`.** Codex does not resolve `@file` imports, so
-  pointing at a separate file leaves it unread. Keep it short — it loads every session.
-- **A timeout or `partial`/`blocked` means unfinished**, with a possibly half-edited
-  tree. Inspect the diff, then resume with `--resume` or finish locally.
-- **Use a Git worktree** for risky or broad changes. A fresh worktree carries none
-  of your uncommitted work — transfer what the task needs deliberately.
-- Logs land in `${XDG_STATE_HOME:-$HOME/.local/state}/opus-delegate` and contain
-  task output. Delete them when done.
-
 ## Check it works
 
 ```bash
