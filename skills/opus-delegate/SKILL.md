@@ -15,7 +15,9 @@ decomposition, integration, critical review, and final validation.
 
 Judge savings across the whole task, including briefing, duplicated context,
 review, and rework. Delegate when those costs are likely lower than the caller
-doing the work directly. Give focused context and request concise evidence
+doing the work directly. Each delegation also carries a fixed floor of roughly
+18k prompt tokens for Opus's own session setup, regardless of how small the
+task is, so trivial handoffs lose on cost even when they succeed. Give focused context and request concise evidence
 instead of raw logs; do not duplicate the delegated implementation in the
 calling session. Token savings must not reduce correctness, necessary
 verification, or completion of the user's request.
@@ -152,7 +154,12 @@ keep the skill path absolute even when the current shell directory differs.
 `--allow-tool` adds task-specific preapprovals; it does not define the entire
 available tool set or bypass permission rules. Worker mode preapproves only
 `Read`, `Edit`, `Write`, and read-only `git diff`/`status`/`log`, so pass the
-verification commands the task needs with `--allow-tool`. Both modes deny
+verification commands the task needs with `--allow-tool`.
+
+Patterns match the literal command string, not the tool behind it:
+`'Bash(pytest *)'` does not match `python -m pytest`, which is what a worker
+often reaches for. Allow every invocation form the task might use, or state
+the exact command to run in the brief. Both modes deny
 requests that would require a permission prompt. Workers must report denied
 verification commands as blockers, never as passing checks. Consultant mode
 uses plan permissions; use worker mode when the task requires edits.

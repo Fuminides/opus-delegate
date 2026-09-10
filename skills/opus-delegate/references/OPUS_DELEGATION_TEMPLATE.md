@@ -13,7 +13,8 @@ Pass these to a worker with `--allow-tool`, so it can verify its own work:
 
 Worker mode preapproves only `Read`, `Edit`, `Write`, and read-only git. A
 verification command that was not allowed comes back *denied*, not passing —
-a worker must report that as a blocker.
+a worker must report that as a blocker. Patterns match the literal command,
+so allow every form that might be used (`pytest` and `python -m pytest`).
 
 ## Worth delegating
 
